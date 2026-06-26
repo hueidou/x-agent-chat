@@ -37,39 +37,39 @@ function post(path, body) {
 }
 
 async function main() {
-  console.log('\n═══ 1. 服务器连通性 ═══')
+  console.log('\n═══ 1. Server Connectivity ═══')
   const s = await fetch('/api/server')
   const serverData = JSON.parse(s.body())
   check('HTTP 200', s.status === 200)
   check('JSON Content-Type', s.type?.includes('json'))
-  check('Server 名称', serverData.server?.name === 'My Team')
+  check('Server name', serverData.server?.name === 'My Team')
 
-  console.log('\n═══ 2. 创建 Agent ═══')
+  console.log('\n═══ 2. Create Agent ═══')
   const r1 = await post('/api/agents', { name: 'Alice', description: 'Developer', runtime: 'opencode' })
-  check('Alice 创建 201', r1.status === 201)
+  check('Alice created 201', r1.status === 201)
   const alice = r1.body()
   check(`Handle: ${alice.handle}`, alice.handle === '@alice')
 
   const r2 = await post('/api/agents', { name: 'Bob', description: 'QA', runtime: 'claude-code' })
-  check('Bob 创建 201', r2.status === 201)
+  check('Bob created 201', r2.status === 201)
 
-  console.log('\n═══ 3. 发消息含 @mention ═══')
+  console.log('\n═══ 3. Send message with @mention ═══')
   const r3 = await post('/api/channels/all/messages', {
     content: 'Hey @alice what is 2+2? Reply with just the number.',
     senderHandle: 'admin'
   })
-  check('消息发送 201', r3.status === 201)
+  check('Message sent 201', r3.status === 201)
   const msg = r3.body()
-  check(`@alice 被识别: ${msg.mentions?.join(',')}`, msg.mentions?.includes('@alice'))
-  check('无服务端模板回复', !msg.replies || msg.replies?.length === 0)
+  check(`@alice recognized: ${msg.mentions?.join(',')}`, msg.mentions?.includes('@alice'))
+  check('No server-side template reply', !msg.replies || msg.replies?.length === 0)
 
-  console.log('\n═══ 4. Agent 状态变更 ═══')
+  console.log('\n═══ 4. Agent Status Change ═══')
   const agents = await fetch('/api/agents')
   const agentsData = JSON.parse(agents.body())
   const aliceNow = agentsData.find(a => a.name === 'Alice')
-  check(`Alice 状态: ${aliceNow?.status}`, aliceNow?.status === 'active')
+  check(`Alice status: ${aliceNow?.status}`, aliceNow?.status === 'active')
 
-  console.log('\n═══ 5. SSE 端点 ═══')
+  console.log('\n═══ 5. SSE Endpoint ═══')
   const sseResult = await new Promise((resolve) => {
     const req = http.get(`${BASE}/api/events?agent=@alice`, res => {
       const headers = res.headers
@@ -81,21 +81,21 @@ async function main() {
   check('SSE 200', sseResult.status === 200)
   check('SSE Content-Type: text/event-stream', sseResult.type?.includes('text/event-stream'))
 
-  console.log('\n═══ 6. 消息列表不含模板回复 ═══')
+  console.log('\n═══ 6. Message list has no template replies ═══')
   const msgs = await fetch('/api/channels/all/messages')
   const msgsData = JSON.parse(msgs.body())
-  check(`消息数: ${msgsData.length}`, msgsData.length >= 1)
+  check(`Message count: ${msgsData.length}`, msgsData.length >= 1)
   const agentReplies = msgsData.filter(m => m.sender.type === 'agent')
-  check('无 Agent 自动回复 (等待 Worker 处理)', agentReplies.length === 0)
+  check('No Agent auto-reply (waiting for Worker)', agentReplies.length === 0)
 
   console.log('\n═══ 7. Agent RuntimeAdapter ═══')
   const runtimeRes = await fetch('/api/agents')
   const runtimeData = JSON.parse(runtimeRes.body())
   const runtimes = [...new Set(runtimeData.map(a => a.runtime))]
-  check(`运行时类型: ${runtimes.join(', ')}`, runtimes.includes('opencode') && runtimes.includes('claude-code'))
+  check(`Runtime types: ${runtimes.join(', ')}`, runtimes.includes('opencode') && runtimes.includes('claude-code'))
 
   console.log(`\n══════════════════════════════════════`)
-  console.log(`  总计: ${passed} ✅   ${failed} ❌  通过率: ${(passed / (passed + failed) * 100).toFixed(0)}%`)
+  console.log(`  Total: ${passed} ✅   ${failed} ❌  Pass rate: ${(passed / (passed + failed) * 100).toFixed(0)}%`)
   console.log(`══════════════════════════════════════`)
   process.exit(failed > 0 ? 1 : 0)
 }

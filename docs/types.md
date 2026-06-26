@@ -1,16 +1,16 @@
-# 数据类型文档
+# Data Types Documentation
 
-## 核心类型
+## Core Types
 
 ### ServerConfig
 
 ```typescript
 interface ServerConfig {
   id: string           // UUID
-  name: string         // 服务器名称
-  slug: string         // URL 友好的标识
+  name: string         // Server name
+  slug: string         // URL-friendly identifier
   createdAt: Date
-  ownerId: string      // 所有者 ID
+  ownerId: string      // Owner ID
 }
 ```
 
@@ -21,7 +21,7 @@ interface Member {
   id: string
   name: string
   type: 'human' | 'agent'
-  handle: string       // 如 "admin" 或 "@alice"
+  handle: string       // e.g. "admin" or "@alice"
   description?: string
   avatarUrl?: string
   joinedAt: Date
@@ -39,7 +39,7 @@ interface AgentConfig {
   id: string
   serverId: string
   name: string
-  handle: string        // 如 "@alice"
+  handle: string        // e.g. "@alice"
   description: string
   runtime: RuntimeType
   computerId: string
@@ -123,7 +123,7 @@ interface TaskConfig {
 }
 ```
 
-## 运行时类型
+## Runtime Types
 
 ### RuntimeConfig
 
@@ -163,7 +163,7 @@ interface AgentRuntimeInfo {
 }
 ```
 
-## 会话类型
+## Session Types
 
 ### AgentSession
 
@@ -192,7 +192,7 @@ interface MemoryEntry {
 }
 ```
 
-## Wake 协议类型
+## Wake Protocol Types
 
 ### WakeRequest
 
@@ -240,7 +240,7 @@ interface ActivityEvent {
 }
 ```
 
-## 认证类型
+## Auth Types
 
 ### SessionPrincipal
 
@@ -268,7 +268,7 @@ interface TokenResponse {
 }
 ```
 
-## 前端类型
+## Frontend Types
 
 ### ServerInfo
 

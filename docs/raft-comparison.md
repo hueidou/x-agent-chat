@@ -1,35 +1,35 @@
-# 与 raft.build 的对比
+# Comparison with raft.build
 
-## 概述
+## Overview
 
-X-Agent-Chat 参照 [raft.build](https://raft.build) 的架构设计，但简化了实现。
+X-Agent-Chat is inspired by [raft.build](https://raft.build)'s architecture, but with a simplified implementation.
 
-## 架构对比
+## Architecture Comparison
 
-| 维度 | raft.build | X-Agent-Chat |
-|------|-----------|--------------|
-| 服务器 | 云端 (raft.build) | 本地 (Express) |
-| 认证 | OAuth + API Key | 无 |
-| 通信 | WebSocket | REST + SSE |
-| 存储 | 云端数据库 | 本地文件 |
-| Agent | 守护进程 + 多 Agent | 单 Worker 单 Agent |
+| Dimension | raft.build | X-Agent-Chat |
+|-----------|-----------|--------------|
+| Server | Cloud (raft.build) | Local (Express) |
+| Auth | OAuth + API Key | None |
+| Communication | WebSocket | REST + SSE |
+| Storage | Cloud database | Local file |
+| Agent | Daemon + multi-agent | Single Worker single Agent |
 
-## Agent 对接对比
+## Agent Integration Comparison
 
-| 维度 | raft.build | X-Agent-Chat |
-|------|-----------|--------------|
-| 启动方式 | `opencode --mcp` | `opencode run --format json` |
-| 输出格式 | MCP (JSON-RPC) | JSON 事件流 |
-| 会话保持 | 进程常驻 | `--session <id>` |
-| 流式输出 | stdout data 事件 | 逐行 JSON 解析 |
-| 生命周期 | per_turn | per_turn |
+| Dimension | raft.build | X-Agent-Chat |
+|-----------|-----------|--------------|
+| Launch method | `opencode --mcp` | `opencode run --format json` |
+| Output format | MCP (JSON-RPC) | JSON event stream |
+| Session persistence | Long-running process | `--session <id>` |
+| Streaming output | stdout data event | Line-by-line JSON parsing |
+| Lifecycle | per_turn | per_turn |
 
-## raft.build 的 OpenCode Driver
+## raft.build's OpenCode Driver
 
-raft.build 使用 `OpenCodeDriver` 对接 opencode:
+raft.build uses `OpenCodeDriver` to integrate with opencode:
 
 ```typescript
-// raft.build 的实现
+// raft.build's implementation
 class OpenCodeDriver {
   lifecycle = {
     kind: 'per_turn',
@@ -76,44 +76,44 @@ class OpenCodeDriver {
 }
 ```
 
-## X-Agent-Chat 的简化
+## X-Agent-Chat Simplifications
 
-### 1. 去掉了认证
+### 1. Removed Authentication
 
-raft.build 使用 OAuth + API Key 认证。X-Agent-Chat 简化为无认证。
+raft.build uses OAuth + API Key authentication. X-Agent-Chat simplifies to no authentication.
 
-### 2. 去掉了云端服务器
+### 2. Removed Cloud Server
 
-raft.build 的服务器在云端。X-Agent-Chat 的服务器在本地。
+raft.build's server is in the cloud. X-Agent-Chat's server is local.
 
-### 3. 简化了通信协议
+### 3. Simplified Communication Protocol
 
-raft.build 使用 WebSocket + MCP。X-Agent-Chat 使用 REST + SSE。
+raft.build uses WebSocket + MCP. X-Agent-Chat uses REST + SSE.
 
-### 4. 保留了核心设计
+### 4. Retained Core Design
 
-- `--format json` 结构化输出
-- `--session <id>` 会话保持
-- 逐行 JSON 解析
-- 流式回调机制
+- `--format json` structured output
+- `--session <id>` session persistence
+- Line-by-line JSON parsing
+- Streaming callback mechanism
 
-## raft.build 的关键设计
+## raft.build Key Designs
 
-### 1. per_turn 生命周期
+### 1. per_turn Lifecycle
 
 ```typescript
 lifecycle = {
-  kind: 'per_turn',           // 每轮启动新进程
-  start: 'defer_until_concrete_message',  // 延迟到实际消息才启动
-  exit: 'terminate_on_turn_end',          // 轮次结束后终止
-  inFlightWake: 'coalesce_into_pending'   // 合并并发唤醒
+  kind: 'per_turn',           // Start new process each turn
+  start: 'defer_until_concrete_message',  // Delay until actual message
+  exit: 'terminate_on_turn_end',          // Terminate after turn ends
+  inFlightWake: 'coalesce_into_pending'   // Merge concurrent wakes
 }
 ```
 
-### 2. JSON 事件流
+### 2. JSON Event Stream
 
 ```typescript
-// raft.build 定义的事件类型
+// raft.build defined event types
 type RuntimeEvent = 
   | { kind: 'thinking', text: string }
   | { kind: 'text', text: string }
@@ -124,27 +124,27 @@ type RuntimeEvent =
   | { kind: 'session_init', sessionId: string }
 ```
 
-### 3. Session 恢复
+### 3. Session Recovery
 
 ```typescript
-// raft.build 的 session 管理
+// raft.build's session management
 session = {
-  recovery: 'resume_or_fresh'  // 尝试恢复，失败则新建
+  recovery: 'resume_or_fresh'  // Try to recover, create new if failed
 }
 
-// 使用 --session 参数
+// Uses --session parameter
 if (ctx.config.sessionId) {
   args.push('--session', ctx.config.sessionId)
 }
 ```
 
-### 4. Stdin 通知
+### 4. Stdin Notification
 
 ```typescript
-// raft.build 支持 stdin 通知（opencode 不支持）
+// raft.build supports stdin notification (opencode does not)
 supportsStdinNotification = false
 
-// Claude 支持
+// Claude supports
 encodeStdinMessage(text, sessionId) {
   return JSON.stringify({
     type: 'user',
@@ -154,26 +154,26 @@ encodeStdinMessage(text, sessionId) {
 }
 ```
 
-## 可以借鉴的改进
+## Potential Improvements
 
-### 1. 持久进程模式
+### 1. Persistent Process Mode
 
-raft.build 对 Claude 使用持久进程，可以减少冷启动。X-Agent-Chat 可以考虑对 opencode 也使用类似模式。
+raft.build uses persistent processes for Claude, which can reduce cold start. X-Agent-Chat could consider a similar mode for opencode.
 
-### 2. 工具调用支持
+### 2. Tool Call Support
 
-raft.build 解析 tool_use 事件。X-Agent-Chat 可以展示工具调用过程。
+raft.build parses tool_use events. X-Agent-Chat could display tool call processes.
 
-### 3. 多 Agent 协作
+### 3. Multi-Agent Collaboration
 
-raft.build 支持多 Agent 在同一频道协作。X-Agent-Chat 已支持，但可以增强。
+raft.build supports multiple agents collaborating in the same channel. X-Agent-Chat already supports this, but could be enhanced.
 
-### 4. 错误恢复
+### 4. Error Recovery
 
-raft.build 有更完善的错误恢复机制。X-Agent-Chat 可以借鉴。
+raft.build has a more complete error recovery mechanism. X-Agent-Chat could learn from it.
 
-## 参考资料
+## References
 
 - raft.build: https://raft.build
-- @botiverse/raft-daemon: npm 包
+- @botiverse/raft-daemon: npm package
 - opencode: https://opencode.ai

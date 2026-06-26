@@ -76,7 +76,7 @@ export default function App() {
   }
 
   const handleCreateChannel = async () => {
-    const name = prompt('频道名称:')
+    const name = prompt('Channel name:')
     if (!name) return
     try {
       await api.createChannel(name)
@@ -86,10 +86,10 @@ export default function App() {
   }
 
   const handleCreateAgent = async () => {
-    const name = prompt('Agent 名称:')
+    const name = prompt('Agent name:')
     if (!name) return
-    const desc = prompt('描述:') || ''
-    const runtime = prompt('运行时 (opencode/claude-code):') || 'opencode'
+    const desc = prompt('Description:') || ''
+    const runtime = prompt('Runtime (opencode/claude-code):') || 'opencode'
     try {
       await api.createAgent(name, desc, runtime)
       setAgents(await api.agents())
@@ -99,7 +99,7 @@ export default function App() {
 
   const handleClaimTask = async (taskId: string, handle: string) => {
     const agent = agents.find(a => a.handle === handle)
-    if (!agent) return alert(`未找到 Agent: ${handle}`)
+    if (!agent) return alert(`Agent not found: ${handle}`)
     try {
       await api.updateTask(taskId, { status: 'claimed', claimedBy: agent.id })
       setTasks(await api.tasks())
@@ -115,10 +115,10 @@ export default function App() {
   }
 
   const handleCreateTask = async () => {
-    const title = prompt('任务标题:')
+    const title = prompt('Task title:')
     if (!title) return
-    const desc = prompt('描述:') || ''
-    const assignStr = prompt('指派给谁? (逗号分隔, 如 @alice,@bob):') || ''
+    const desc = prompt('Description:') || ''
+    const assignStr = prompt('Assign to? (comma separated, e.g. @alice,@bob):') || ''
     const handles = assignStr ? assignStr.split(',').map(h => h.trim()).filter(Boolean) : undefined
     try {
       await api.createTask(title, desc, handles)
@@ -131,7 +131,7 @@ export default function App() {
       <div className="app">
         <div className="empty-state" style={{ flex: 1 }}>
           <div className="big">🚀</div>
-          <div>正在连接 Raft 服务器...</div>
+          <div>Connecting to Raft server...</div>
         </div>
       </div>
     )
@@ -160,7 +160,7 @@ export default function App() {
             🤖 Agent ({agents.length})
           </div>
           <div className={`panel-tab${panelTab === 'tasks' ? ' active' : ''}`} onClick={() => setPanelTab('tasks')}>
-            📋 任务 ({tasks.length})
+            📋 Tasks ({tasks.length})
           </div>
         </div>
 
@@ -175,10 +175,10 @@ export default function App() {
           <>
             <TaskPanel tasks={tasks} agents={agents} onClaim={handleClaimTask} onDone={handleDoneTask} />
             <div className="quick-actions">
-              <button className="quick-btn" onClick={handleCreateTask}>+ 任务</button>
+              <button className="quick-btn" onClick={handleCreateTask}>+ Task</button>
               <button className="quick-btn" onClick={async () => {
                 setTasks(await api.tasks())
-              }}>🔄 刷新</button>
+              }}>🔄 Refresh</button>
             </div>
           </>
         )}

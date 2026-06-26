@@ -190,7 +190,7 @@ app.get('/api/events', (req, res) => {
   })
 })
 
-// ── Frontend SSE (实时消息推送) ──
+// ── Frontend SSE (real-time message push) ──
 app.get('/api/stream', (req, res) => {
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
@@ -208,7 +208,7 @@ app.get('/api/stream', (req, res) => {
   })
 })
 
-// ── Agent 流式回复推送 ──
+// ── Agent streaming reply push ──
 app.post('/api/channels/:channelName/stream', (req, res) => {
   const { agentHandle, agentName, content, status } = req.body
   broadcastToFrontend({
@@ -273,5 +273,5 @@ app.use((req, res, next) => {
 })
 
 app.listen(PORT, () => {
-  console.log(`Raft API 服务器运行于 http://localhost:${PORT}`)
+  console.log(`Raft API server running at http://localhost:${PORT}`)
 })

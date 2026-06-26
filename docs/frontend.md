@@ -1,39 +1,39 @@
-# 前端文档
+# Frontend Documentation
 
-## 技术栈
+## Tech Stack
 
 - React 18
 - Vite
 - TypeScript
-- CSS (无框架)
+- CSS (no framework)
 
-## 目录结构
+## Directory Structure
 
 ```
 web/
 ├── src/
-│   ├── main.tsx          # 入口
-│   ├── App.tsx           # 主组件
-│   ├── App.css           # 样式
-│   ├── api.ts            # API 客户端
-│   ├── types.ts          # 类型定义
+│   ├── main.tsx          # Entry point
+│   ├── App.tsx           # Main component
+│   ├── App.css           # Styles
+│   ├── api.ts            # API client
+│   ├── types.ts          # Type definitions
 │   └── components/
-│       ├── Sidebar.tsx   # 侧边栏
-│       ├── ChatArea.tsx  # 聊天区域
-│       ├── MessageInput.tsx  # 消息输入
-│       ├── AgentPanel.tsx    # Agent 面板
-│       └── TaskPanel.tsx     # 任务面板
+│       ├── Sidebar.tsx   # Sidebar
+│       ├── ChatArea.tsx  # Chat area
+│       ├── MessageInput.tsx  # Message input
+│       ├── AgentPanel.tsx    # Agent panel
+│       └── TaskPanel.tsx     # Task panel
 ├── index.html
 ├── package.json
 ├── tsconfig.json
 └── vite.config.ts
 ```
 
-## 组件架构
+## Component Architecture
 
 ### App.tsx
 
-**状态**:
+**State**:
 ```typescript
 const [server, setServer] = useState<ServerInfo | null>(null)
 const [agents, setAgents] = useState<Agent[]>([])
@@ -44,10 +44,10 @@ const [activeChannel, setActiveChannel] = useState('all')
 const [streaming, setStreaming] = useState<StreamingState | null>(null)
 ```
 
-**数据流**:
-1. 初始加载: `load()` 获取 server, agents, channels, tasks
-2. 消息加载: `loadMessages(channelName)` 获取频道消息
-3. SSE 监听: 监听 `/api/stream` 接收实时事件
+**Data Flow**:
+1. Initial load: `load()` fetches server, agents, channels, tasks
+2. Message load: `loadMessages(channelName)` fetches channel messages
+3. SSE listener: Listens to `/api/stream` for real-time events
 
 ### ChatArea.tsx
 
@@ -60,7 +60,7 @@ interface Props {
 }
 ```
 
-**流式显示**:
+**Streaming Display**:
 ```tsx
 {streaming && (
   <div className="msg streaming-msg">
@@ -70,7 +70,7 @@ interface Props {
     <div className="msg-body">
       <div className="msg-header">
         <span className="msg-name">{streaming.agentName}</span>
-        <span className="streaming-indicator">正在回复...</span>
+        <span className="streaming-indicator">Replying...</span>
       </div>
       <div className="msg-text">
         {streaming.content}
@@ -83,12 +83,12 @@ interface Props {
 
 ### MessageInput.tsx
 
-**功能**:
-- 输入框 + 发送按钮
-- @mention 自动补全
-- Enter 发送
+**Features**:
+- Input box + send button
+- @mention autocomplete
+- Enter to send
 
-## SSE 事件处理
+## SSE Event Handling
 
 ```typescript
 useEffect(() => {
@@ -97,26 +97,26 @@ useEffect(() => {
     const data = JSON.parse(e.data)
     if (data.type === 'agent_stream') {
       if (data.status === 'done') {
-        setStreaming(null)           // 清除流式状态
-        loadMessages(activeChannel)  // 重新加载消息
+        setStreaming(null)           // Clear streaming state
+        loadMessages(activeChannel)  // Reload messages
       } else {
-        setStreaming({               // 更新流式内容
+        setStreaming({               // Update streaming content
           agentName: data.agentName,
           content: data.content,
           status: data.status
         })
       }
     } else if (data.type === 'message') {
-      loadMessages(activeChannel)    // 新消息
+      loadMessages(activeChannel)    // New message
     }
   }
   return () => src.close()
 }, [activeChannel])
 ```
 
-## API 客户端
+## API Client
 
-**文件**: `web/src/api.ts`
+**File**: `web/src/api.ts`
 
 ```typescript
 export const api = {
@@ -134,25 +134,25 @@ export const api = {
 }
 ```
 
-## 样式主题
+## Style Theme
 
-**CSS 变量**:
+**CSS Variables**:
 ```css
 :root {
-  --bg: #0d1117;           /* 背景 */
-  --surface: #161b22;      /* 表面 */
-  --border: #30363d;       /* 边框 */
-  --text: #e6edf3;         /* 文字 */
-  --text-dim: #8b949e;     /* 暗文字 */
-  --accent: #58a6ff;       /* 强调色 */
-  --green: #3fb950;        /* 绿色 (人类) */
-  --purple: #a371f7;       /* 紫色 (Agent) */
-  --orange: #d29922;       /* 橙色 */
-  --red: #f85149;          /* 红色 */
+  --bg: #0d1117;           /* Background */
+  --surface: #161b22;      /* Surface */
+  --border: #30363d;       /* Border */
+  --text: #e6edf3;         /* Text */
+  --text-dim: #8b949e;     /* Dim text */
+  --accent: #58a6ff;       /* Accent */
+  --green: #3fb950;        /* Green (human) */
+  --purple: #a371f7;       /* Purple (Agent) */
+  --orange: #d29922;       /* Orange */
+  --red: #f85149;          /* Red */
 }
 ```
 
-**流式动画**:
+**Streaming Animation**:
 ```css
 .streaming-indicator {
   animation: pulse 1.5s ease-in-out infinite;
@@ -170,25 +170,25 @@ export const api = {
 }
 ```
 
-## Vite 配置
+## Vite Configuration
 
 ```typescript
 export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api': 'http://localhost:4173',  // 开发时代理到后端
+      '/api': 'http://localhost:4173',  // Proxy to backend during development
     },
   },
 })
 ```
 
-## 构建
+## Build
 
 ```bash
 cd web
 npm install
-npm run build  # 输出到 web/dist/
+npm run build  # Output to web/dist/
 ```
 
-Server 会自动服务 `web/dist/` 下的静态文件。
+Server automatically serves static files from `web/dist/`.

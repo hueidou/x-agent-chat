@@ -1,48 +1,48 @@
-# Agent Worker 文档
+# Agent Worker Documentation
 
-## 概述
+## Overview
 
-Agent Worker 是连接服务器和 AI 运行时的桥梁。它轮询服务器消息，检测 @mention，调用 AI，推送流式回复。
+Agent Worker is the bridge between the server and AI runtime. It polls the server for messages, detects @mentions, calls the AI, and pushes streaming replies.
 
-## 核心组件
+## Core Components
 
 ### BridgeClient
 
-**文件**: `agent/BridgeClient.ts`
+**File**: `agent/BridgeClient.ts`
 
-**职责**:
-1. 轮询服务器检查新消息
-2. 检测 @mention
-3. 调用 RuntimeAdapter
-4. 推送流式回复到服务器
+**Responsibilities**:
+1. Poll the server for new messages
+2. Detect @mentions
+3. Call RuntimeAdapter
+4. Push streaming replies to the server
 
-**关键代码**:
+**Key Code**:
 ```typescript
 class BridgeClient {
-  private lastSeenTs = 0  // 使用时间戳而不是消息ID
+  private lastSeenTs = 0  // Uses timestamp instead of message ID
 
   private async checkMessages(adapter: RuntimeAdapter) {
-    // 1. 获取所有频道
-    // 2. 获取每个频道的消息
-    // 3. 过滤新消息 (createdAt > lastSeenTs)
-    // 4. 检查 @mention
-    // 5. 调用 handleMessage
+    // 1. Get all channels
+    // 2. Get messages for each channel
+    // 3. Filter new messages (createdAt > lastSeenTs)
+    // 4. Check @mention
+    // 5. Call handleMessage
   }
 
   private async handleMessage(channelName, msg, adapter) {
-    // 1. 构建 prompt
-    // 2. 调用 adapter.execute(prompt, callbacks)
-    // 3. 流式回调推送
-    // 4. 完成后发送消息
+    // 1. Build prompt
+    // 2. Call adapter.execute(prompt, callbacks)
+    // 3. Streaming callback push
+    // 4. Send message after completion
   }
 }
 ```
 
 ### RuntimeAdapter
 
-**文件**: `agent/RuntimeAdapter.ts`
+**File**: `agent/RuntimeAdapter.ts`
 
-**接口**:
+**Interface**:
 ```typescript
 interface StreamCallbacks {
   onToken?: (text: string) => void
@@ -63,15 +63,15 @@ interface RuntimeAdapter {
 
 ### OpenCodeAdapter
 
-**文件**: `agent/adapters/OpenCode.ts`
+**File**: `agent/adapters/OpenCode.ts`
 
-**特性**:
-- 使用 `--format json` 获取结构化事件流
-- 使用 `--session <id>` 恢复会话
-- 逐行解析 JSON 事件
-- 支持流式回调
+**Features**:
+- Uses `--format json` for structured event streams
+- Uses `--session <id>` for session recovery
+- Parses JSON events line by line
+- Supports streaming callbacks
 
-**JSON 事件格式**:
+**JSON Event Format**:
 ```json
 {"type": "step_start", "sessionID": "ses_xxx"}  → onThinking
 {"type": "text", "part": {"text": "..."}}        → onToken
@@ -80,7 +80,7 @@ interface RuntimeAdapter {
 {"type": "error", "error": {"message": "..."}}   → onError
 ```
 
-**启动参数**:
+**Launch Parameters**:
 ```bash
 opencode run \
   --format json \
@@ -93,14 +93,14 @@ opencode run \
 
 ### ClaudeAdapter
 
-**文件**: `agent/adapters/Claude.ts`
+**File**: `agent/adapters/Claude.ts`
 
-**特性**:
-- 使用 `claude -p` 管道模式
-- 同步调用，不支持流式
-- 无会话保持
+**Features**:
+- Uses `claude -p` pipe mode
+- Synchronous call, no streaming support
+- No session persistence
 
-## 启动方式
+## Startup
 
 ```bash
 node dist/agent/index.js \
@@ -110,43 +110,43 @@ node dist/agent/index.js \
   --runtime opencode
 ```
 
-**参数**:
-- `--server`: 服务器地址
-- `--handle`: Agent 的 handle (如 @alice)
-- `--name`: Agent 的显示名称
-- `--runtime`: 运行时类型 (opencode/claude-code)
+**Parameters**:
+- `--server`: Server address
+- `--handle`: Agent handle (e.g. @alice)
+- `--name`: Agent display name
+- `--runtime`: Runtime type (opencode/claude-code)
 
-## 消息处理流程
+## Message Processing Flow
 
 ```
-1. pollLoop 每 3 秒执行一次
+1. pollLoop executes every 3 seconds
    ↓
-2. checkMessages 获取所有频道消息
+2. checkMessages fetches all channel messages
    ↓
-3. 过滤条件:
+3. Filter conditions:
    - createdAt > lastSeenTs
-   - sender.handle !== this.handle (忽略自己)
-   - mentions.includes(this.handle) (检查 @mention)
+   - sender.handle !== this.handle (ignore self)
+   - mentions.includes(this.handle) (check @mention)
    ↓
-4. handleMessage 构建 prompt
+4. handleMessage builds prompt
    ↓
 5. adapter.execute(prompt, callbacks)
    ↓
-6. 流式回调:
+6. Streaming callbacks:
    - onToken → pushStreamUpdate(streaming)
    - onDone → pushStreamUpdate(done)
    ↓
-7. POST 消息到服务器
+7. POST message to server
 ```
 
-## 流式推送机制
+## Streaming Push Mechanism
 
 ```typescript
-// 流式回调
+// Streaming callbacks
 callbacks: StreamCallbacks = {
   onToken: (text) => {
     streamingContent += text
-    // 每 500ms 推送一次
+    // Push every 500ms
     if (now - lastPushTs > 500) {
       this.pushStreamUpdate(channelName, streamingContent, 'streaming')
     }
@@ -156,7 +156,7 @@ callbacks: StreamCallbacks = {
   }
 }
 
-// 推送到服务器
+// Push to server
 private async pushStreamUpdate(channelName, content, status) {
   await fetch(`${serverUrl}/api/channels/${channelName}/stream`, {
     method: 'POST',
@@ -170,9 +170,9 @@ private async pushStreamUpdate(channelName, content, status) {
 }
 ```
 
-## 会话保持
+## Session Persistence
 
-OpenCodeAdapter 维护 `sessionId`:
+OpenCodeAdapter maintains `sessionId`:
 
 ```typescript
 class OpenCodeAdapter {
@@ -185,7 +185,7 @@ class OpenCodeAdapter {
     }
     args.push('--', prompt)
     // ...
-    // 从 JSON 事件中获取 sessionId
+    // Get sessionId from JSON events
     if (event.sessionID) {
       this.sessionId = event.sessionID
       callbacks?.onSession?.(event.sessionID)
@@ -194,9 +194,9 @@ class OpenCodeAdapter {
 }
 ```
 
-## 错误处理
+## Error Handling
 
-- 超时: 300 秒后 kill 进程
-- 非零退出码: 抛出错误
-- JSON 解析失败: 跳过该行
-- 网络错误: 重试下一轮询
+- Timeout: Kill process after 300 seconds
+- Non-zero exit code: Throw error
+- JSON parse failure: Skip that line
+- Network error: Retry on next poll

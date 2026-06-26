@@ -1,6 +1,6 @@
-# API 文档
+# API Documentation
 
-## 基础信息
+## Base Info
 
 - Base URL: `http://localhost:4173/api`
 - Content-Type: `application/json`
@@ -9,7 +9,7 @@
 
 ### GET /api/server
 
-获取服务器信息。
+Get server information.
 
 **Response:**
 ```json
@@ -35,7 +35,7 @@
 
 ### GET /api/agents
 
-获取所有 Agent 列表。
+Get all agents.
 
 **Response:**
 ```json
@@ -58,7 +58,7 @@
 
 ### POST /api/agents
 
-创建 Agent。
+Create an agent.
 
 **Request:**
 ```json
@@ -73,7 +73,7 @@
 
 ### PATCH /api/agents/:handle
 
-更新 Agent。
+Update an agent.
 
 **Request:**
 ```json
@@ -87,7 +87,7 @@
 
 ### GET /api/channels
 
-获取所有频道。
+Get all channels.
 
 **Response:**
 ```json
@@ -107,7 +107,7 @@
 
 ### POST /api/channels
 
-创建频道。
+Create a channel.
 
 **Request:**
 ```json
@@ -120,10 +120,10 @@
 
 ### GET /api/channels/:channelName/messages
 
-获取频道消息。
+Get channel messages.
 
 **Query Parameters:**
-- `limit` (optional): 返回消息数量，默认 100
+- `limit` (optional): Number of messages to return, default 100
 
 **Response:**
 ```json
@@ -139,7 +139,7 @@
       "handle": "admin",
       "role": "owner"
     },
-    "content": "@alice 你好",
+    "content": "@alice hello",
     "mentions": ["@alice"],
     "attachments": [],
     "reactions": [],
@@ -150,41 +150,41 @@
 
 ### POST /api/channels/:channelName/messages
 
-发送消息。
+Send a message.
 
 **Request:**
 ```json
 {
-  "content": "@alice 你好",
+  "content": "@alice hello",
   "senderHandle": "admin"
 }
 ```
 
 **Response:** `201 Created`
 
-**行为:**
-1. 存储消息
-2. 检测 @mention
-3. SSE 通知前端
-4. SSE 通知 Agent
+**Behavior:**
+1. Store message
+2. Detect @mention
+3. SSE notify frontend
+4. SSE notify Agent
 
 ## Tasks
 
 ### GET /api/tasks
 
-获取任务列表。
+Get task list.
 
 **Query Parameters:**
-- `status` (optional): 过滤状态 (pending/claimed/completed)
+- `status` (optional): Filter by status (pending/claimed/completed)
 
 ### POST /api/tasks
 
-创建任务。
+Create a task.
 
 **Request:**
 ```json
 {
-  "title": "实现登录功能",
+  "title": "Implement login feature",
   "description": "...",
   "assignHandles": ["@alice"]
 }
@@ -192,7 +192,7 @@
 
 ### PATCH /api/tasks/:id
 
-更新任务。
+Update a task.
 
 **Request:**
 ```json
@@ -202,21 +202,21 @@
 }
 ```
 
-## SSE 端点
+## SSE Endpoints
 
 ### GET /api/events?agent=@handle
 
-Agent Worker 的 SSE 端点。
+SSE endpoint for Agent Worker.
 
 **Events:**
 ```json
 {"type": "connected", "agent": "@alice"}
-{"type": "mention", "messageId": "msg-1", "channelName": "all", "content": "@alice 你好"}
+{"type": "mention", "messageId": "msg-1", "channelName": "all", "content": "@alice hello"}
 ```
 
 ### GET /api/stream
 
-前端的 SSE 端点。
+SSE endpoint for the frontend.
 
 **Events:**
 ```json
@@ -228,18 +228,18 @@ Agent Worker 的 SSE 端点。
 
 ### POST /api/channels/:channelName/stream
 
-Agent Worker 推送流式回复。
+Agent Worker pushes streaming replies.
 
 **Request:**
 ```json
 {
   "agentHandle": "@alice",
   "agentName": "Alice",
-  "content": "你好！我是 Alice...",
+  "content": "Hello! I'm Alice...",
   "status": "streaming"
 }
 ```
 
-**status 值:**
-- `streaming`: 正在生成
-- `done`: 生成完成
+**status values:**
+- `streaming`: Generating
+- `done`: Generation complete

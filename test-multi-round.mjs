@@ -39,23 +39,23 @@ async function waitForReply(timeout = TIMEOUT) {
 
 async function main() {
   console.log('═'.repeat(55))
-  console.log('  多轮对话测试')
+  console.log('  Multi-round conversation test')
   console.log('═'.repeat(55))
 
-  // 1. 启动 Server
-  console.log('\n[1] 启动服务器...')
+  // 1. Start Server
+  console.log('\n[1] Starting server...')
   const serverProc = spawn('node', ['dist/server/index.js'], {
     cwd: 'C:\\Users\\hueid\\Desktop\\workspace\\dosomething\\raft-core',
     stdio: 'ignore'
   })
   await sleep(3000)
 
-  // 2. 创建 Agent
-  console.log('[2] 创建 Agent...')
+  // 2. Create Agent
+  console.log('[2] Creating Agent...')
   await req('POST', '/api/agents', { name: 'Alice', description: 'Developer', runtime: 'opencode' })
 
-  // 3. 启动 Worker
-  console.log('[3] 启动 Worker...')
+  // 3. Start Worker
+  console.log('[3] Starting Worker...')
   const workerProc = spawn('node', [
     'dist/agent/index.js', '--server', BASE,
     '--handle', '@alice', '--name', 'Alice', '--runtime', 'opencode'
@@ -67,41 +67,41 @@ async function main() {
   workerProc.stderr.on('data', d => process.stdout.write(`   [worker] ${d}`))
   await sleep(3000)
 
-  // 4. 多轮对话
+  // 4. Multi-round conversation
   const rounds = [
-    '1+1等于多少?只回答数字',
-    '2+2呢?',
-    '3+3呢?',
-    '4+4呢?',
+    'What is 1+1? Reply with just the number',
+    'What about 2+2?',
+    'What about 3+3?',
+    'What about 4+4?',
   ]
 
   let pass = 0
   for (let i = 0; i < rounds.length; i++) {
     const q = rounds[i]
-    console.log(`\n--- 第 ${i+1} 轮 ---`)
-    console.log(`发送: @alice ${q}`)
+    console.log(`\n--- Round ${i+1} ---`)
+    console.log(`Sent: @alice ${q}`)
 
     await req('POST', '/api/channels/all/messages', {
       content: `@alice ${q}`,
       senderHandle: 'admin'
     })
 
-    console.log('等待回复...')
+    console.log('Waiting for reply...')
     const msgs = await waitForReply()
     if (msgs) {
       const agentMsgs = msgs.filter(m => m.sender?.type === 'agent')
       const reply = agentMsgs[agentMsgs.length - 1]
-      console.log(`收到: ${reply.content}`)
+      console.log(`Received: ${reply.content}`)
       pass++
     } else {
-      console.log(`❌ 超时! 第 ${i+1} 轮无回复`)
+      console.log(`❌ Timeout! Round ${i+1} no reply`)
       break
     }
   }
 
-  // 5. 结果
+  // 5. Results
   console.log('\n' + '═'.repeat(55))
-  console.log(`  结果: ${pass}/${rounds.length} 轮通过`)
+  console.log(`  Result: ${pass}/${rounds.length} rounds passed`)
   console.log('═'.repeat(55))
 
   serverProc.kill()

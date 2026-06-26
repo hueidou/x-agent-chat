@@ -1,114 +1,114 @@
-# 开发指南
+# Development Guide
 
-## 环境要求
+## Requirements
 
 - Node.js >= 20
 - npm >= 9
-- opencode CLI (用于 AI 运行时)
+- opencode CLI (for AI runtime)
 - PowerShell 7+ (Windows)
 
-## 快速开始
+## Quick Start
 
 ```bash
-# 1. 克隆仓库
+# 1. Clone the repository
 git clone https://github.com/hueidou/x-agent-chat.git
 cd x-agent-chat
 
-# 2. 安装依赖
+# 2. Install dependencies
 npm install
 cd web && npm install && cd ..
 
-# 3. 编译
+# 3. Compile
 npx tsc
 cd web && npm run build && cd ..
 
-# 4. 启动服务
+# 4. Start the server
 node dist/server/index.js
 
-# 5. 新终端：启动 Agent Worker
+# 5. New terminal: Start Agent Worker
 node dist/agent/index.js --server http://localhost:4173 --handle @alice --name Alice --runtime opencode
 ```
 
-## 项目结构
+## Project Structure
 
 ```
 x-agent-chat/
 ├── agent/                  # Agent Worker
-│   ├── index.ts            # CLI 入口
-│   ├── BridgeClient.ts     # 核心逻辑
-│   ├── RuntimeAdapter.ts   # 运行时接口
+│   ├── index.ts            # CLI entry point
+│   ├── BridgeClient.ts     # Core logic
+│   ├── RuntimeAdapter.ts   # Runtime interface
 │   └── adapters/
-│       ├── OpenCode.ts     # opencode 适配器
-│       ├── Claude.ts       # claude 适配器
-│       └── index.ts        # 注册
+│       ├── OpenCode.ts     # opencode adapter
+│       ├── Claude.ts       # claude adapter
+│       └── index.ts        # Registration
 ├── server/
-│   └── index.ts            # Express 服务器
+│   └── index.ts            # Express server
 ├── src/
-│   ├── types/              # 类型定义
-│   ├── store/              # 数据存储
-│   │   ├── FileStore.ts    # 文件持久化
-│   │   └── MemoryStore.ts  # 内存存储
-│   ├── runtime/            # 运行时相关
+│   ├── types/              # Type definitions
+│   ├── store/              # Data storage
+│   │   ├── FileStore.ts    # File persistence
+│   │   └── MemoryStore.ts  # In-memory storage
+│   ├── runtime/            # Runtime related
 │   │   ├── AgentRuntime.ts
 │   │   └── WakeBridge.ts
-│   ├── cli/                # CLI 工具
-│   ├── daemon/             # 守护进程
-│   ├── models/             # 数据模型
-│   └── server/             # 服务器相关
-├── web/                    # 前端
+│   ├── cli/                # CLI tools
+│   ├── daemon/             # Daemon process
+│   ├── models/             # Data models
+│   └── server/             # Server related
+├── web/                    # Frontend
 │   ├── src/
-│   │   ├── App.tsx         # 主组件
-│   │   ├── App.css         # 样式
-│   │   ├── api.ts          # API 客户端
-│   │   ├── types.ts        # 类型定义
-│   │   └── components/     # 组件
+│   │   ├── App.tsx         # Main component
+│   │   ├── App.css         # Styles
+│   │   ├── api.ts          # API client
+│   │   ├── types.ts        # Type definitions
+│   │   └── components/     # Components
 │   ├── index.html
 │   ├── package.json
 │   ├── tsconfig.json
 │   └── vite.config.ts
-├── docs/                   # 文档
-├── examples/               # 示例
-├── tests/                  # 测试
+├── docs/                   # Documentation
+├── examples/               # Examples
+├── tests/                  # Tests
 ├── package.json
 └── tsconfig.json
 ```
 
-## 开发流程
+## Development Workflow
 
-### 1. 修改后端代码
+### 1. Modify Backend Code
 
 ```bash
-# 编译
+# Compile
 npx tsc
 
-# 重启服务
+# Restart the server
 node dist/server/index.js
 ```
 
-### 2. 修改前端代码
+### 2. Modify Frontend Code
 
 ```bash
-# 开发模式 (热更新)
+# Development mode (hot reload)
 cd web
 npm run dev
 
-# 或者编译后重启服务
+# Or compile and restart the server
 npm run build
 ```
 
-### 3. 修改 Agent 代码
+### 3. Modify Agent Code
 
 ```bash
-# 编译
+# Compile
 npx tsc
 
-# 重启 Worker
+# Restart the Worker
 node dist/agent/index.js --server http://localhost:4173 --handle @alice --name Alice --runtime opencode
 ```
 
-## 添加新的 RuntimeAdapter
+## Adding a New RuntimeAdapter
 
-### 1. 创建适配器文件
+### 1. Create Adapter File
 
 ```typescript
 // agent/adapters/NewRuntime.ts
@@ -120,7 +120,7 @@ export class NewRuntimeAdapter implements RuntimeAdapter {
   readonly type: RuntimeType = 'new-runtime'
 
   isAvailable(): boolean {
-    // 检查 CLI 是否可用
+    // Check if CLI is available
     try {
       execSync('new-runtime --version', { stdio: 'ignore' })
       return true
@@ -130,14 +130,14 @@ export class NewRuntimeAdapter implements RuntimeAdapter {
   }
 
   async execute(prompt: string, callbacks?: StreamCallbacks): Promise<string> {
-    // 实现调用逻辑
-    // 使用 callbacks.onToken() 推送流式内容
+    // Implement call logic
+    // Use callbacks.onToken() to push streaming content
     return 'response'
   }
 }
 ```
 
-### 2. 注册适配器
+### 2. Register Adapter
 
 ```typescript
 // agent/adapters/index.ts
@@ -147,73 +147,73 @@ import { NewRuntimeAdapter } from './NewRuntime.js'
 registerRuntime('new-runtime', NewRuntimeAdapter)
 ```
 
-### 3. 更新类型定义
+### 3. Update Type Definitions
 
 ```typescript
 // src/types/agent.ts
 export type RuntimeType = 
   | 'claude-code'
   | 'opencode'
-  | 'new-runtime'  // 添加
+  | 'new-runtime'  // Add
 ```
 
-## 测试
+## Testing
 
-### API 测试
+### API Test
 
 ```bash
 node test-agent.mjs
 ```
 
-### 多轮对话测试
+### Multi-Round Conversation Test
 
 ```bash
 node test-multi-round.mjs
 ```
 
-### Worker 流程测试
+### Worker Flow Test
 
 ```bash
 node test-worker-flow.mjs
 ```
 
-## 调试
+## Debugging
 
-### 查看日志
+### Viewing Logs
 
-Server 日志直接输出到控制台。Worker 日志也输出到控制台。
+Server logs are output directly to the console. Worker logs are also output to the console.
 
-### 常见问题
+### Common Issues
 
-1. **opencode 超时**
-   - 检查 opencode 是否已登录
-   - 检查网络连接
-   - 增加超时时间
+1. **opencode timeout**
+   - Check if opencode is logged in
+   - Check network connection
+   - Increase timeout duration
 
-2. **消息不显示**
-   - 检查 SSE 连接
-   - 检查 @mention 格式
+2. **Messages not displaying**
+   - Check SSE connection
+   - Check @mention format
 
-3. **流式不工作**
-   - 确认使用 `--format json`
-   - 检查 JSON 解析
+3. **Streaming not working**
+   - Confirm using `--format json`
+   - Check JSON parsing
 
-## 代码规范
+## Code Standards
 
-- 使用 ES Module
-- TypeScript 严格模式
-- 无注释（除非必要）
-- 使用 `import type` 导入类型
-- 使用 `.js` 扩展名导入（即使源文件是 .ts）
+- Use ES Module
+- TypeScript strict mode
+- No comments (unless necessary)
+- Use `import type` for type imports
+- Use `.js` extension for imports (even if source file is .ts)
 
-## 提交规范
+## Commit Convention
 
 ```
-feat: 新功能
-fix: 修复
-docs: 文档
-style: 格式
-refactor: 重构
-test: 测试
-chore: 构建/工具
+feat: New feature
+fix: Bug fix
+docs: Documentation
+style: Formatting
+refactor: Refactoring
+test: Testing
+chore: Build/tools
 ```

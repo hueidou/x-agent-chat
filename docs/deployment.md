@@ -1,10 +1,10 @@
-# 部署文档
+# Deployment Documentation
 
-## 部署架构
+## Deployment Architecture
 
 ```
 ┌─────────────────────────────────────────┐
-│            用户机器 (本地)                │
+│            User Machine (Local)          │
 │                                         │
 │  ┌─────────────┐  ┌─────────────┐      │
 │  │ Server      │  │ Agent Worker│      │
@@ -16,49 +16,49 @@
 │                  │                      │
 │         ┌────────▼────────┐             │
 │         │   opencode CLI  │             │
-│         │   (AI 运行时)    │             │
+│         │   (AI Runtime)  │             │
 │         └─────────────────┘             │
 └─────────────────────────────────────────┘
 ```
 
-**注意**: Server 和 Agent Worker 必须在同一台机器上，因为 Worker 需要调用本地的 opencode CLI。
+**Note**: Server and Agent Worker must be on the same machine, because the Worker needs to call the local opencode CLI.
 
-## 本地部署
+## Local Deployment
 
-### 1. 安装依赖
+### 1. Install Dependencies
 
 ```bash
-# 安装 Node.js (>= 20)
+# Install Node.js (>= 20)
 # https://nodejs.org/
 
-# 安装 opencode CLI
+# Install opencode CLI
 npm install -g opencode-ai
 
-# 登录 opencode
+# Login to opencode
 opencode login
 ```
 
-### 2. 构建项目
+### 2. Build Project
 
 ```bash
 cd x-agent-chat
 
-# 安装依赖
+# Install dependencies
 npm install
 cd web && npm install && cd ..
 
-# 编译
+# Compile
 npx tsc
 cd web && npm run build && cd ..
 ```
 
-### 3. 启动服务
+### 3. Start Services
 
 ```bash
-# 启动 Server
+# Start Server
 node dist/server/index.js
 
-# 新终端：启动 Agent Worker
+# New terminal: Start Agent Worker
 node dist/agent/index.js \
   --server http://localhost:4173 \
   --handle @alice \
@@ -66,71 +66,71 @@ node dist/agent/index.js \
   --runtime opencode
 ```
 
-### 4. 访问
+### 4. Access
 
-浏览器打开 `http://localhost:4173`
+Open `http://localhost:4173` in your browser.
 
-## 使用 PM2 守护进程
+## Using PM2 Daemon
 
-### 安装 PM2
+### Install PM2
 
 ```bash
 npm install -g pm2
 ```
 
-### 启动服务
+### Start Services
 
 ```bash
-# 启动 Server
+# Start Server
 pm2 start dist/server/index.js --name "x-agent-server"
 
-# 启动 Agent Worker
+# Start Agent Worker
 pm2 start dist/agent/index.js --name "x-agent-worker" -- \
   --server http://localhost:4173 \
   --handle @alice \
   --name Alice \
   --runtime opencode
 
-# 查看状态
+# Check status
 pm2 status
 
-# 查看日志
+# View logs
 pm2 logs
 
-# 开机自启
+# Auto-start on boot
 pm2 startup
 pm2 save
 ```
 
-## Windows 服务
+## Windows Service
 
-### 使用 NSSM
+### Using NSSM
 
 ```bash
-# 下载 NSSM: https://nssm.cc/download
+# Download NSSM: https://nssm.cc/download
 
-# 安装 Server 服务
+# Install Server service
 nssm install XAgentServer "C:\path\to\node.exe" "C:\path\to\x-agent-chat\dist\server\index.js"
 
-# 安装 Worker 服务
+# Install Worker service
 nssm install XAgentWorker "C:\path\to\node.exe" "C:\path\to\x-agent-chat\dist\agent\index.js" "--server" "http://localhost:4173" "--handle" "@alice" "--name" "Alice" "--runtime" "opencode"
 
-# 启动服务
+# Start services
 nssm start XAgentServer
 nssm start XAgentWorker
 ```
 
-## 环境变量
+## Environment Variables
 
-| 变量 | 默认值 | 说明 |
-|------|--------|------|
-| `PORT` | 4173 | Server 端口 |
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PORT` | 4173 | Server port |
 
-## 数据存储
+## Data Storage
 
-数据存储在 `~/.raft/servers/default.json`。
+Data is stored in `~/.raft/servers/default.json`.
 
-**备份**:
+**Backup**:
 ```bash
 # Windows
 copy %USERPROFILE%\.raft\servers\default.json backup.json
@@ -139,7 +139,7 @@ copy %USERPROFILE%\.raft\servers\default.json backup.json
 cp ~/.raft/servers/default.json backup.json
 ```
 
-**恢复**:
+**Restore**:
 ```bash
 # Windows
 copy backup.json %USERPROFILE%\.raft\servers\default.json
@@ -148,9 +148,9 @@ copy backup.json %USERPROFILE%\.raft\servers\default.json
 cp backup.json ~/.raft/servers/default.json
 ```
 
-## 多 Agent 部署
+## Multi-Agent Deployment
 
-可以启动多个 Agent Worker，每个使用不同的 handle:
+You can start multiple Agent Workers, each with a different handle:
 
 ```bash
 # Worker 1: Alice (opencode)
@@ -168,45 +168,45 @@ node dist/agent/index.js \
   --runtime claude-code
 ```
 
-## 故障排除
+## Troubleshooting
 
-### Server 无法启动
+### Server Won't Start
 
-1. 检查端口 4173 是否被占用
-2. 检查 Node.js 版本
-3. 查看错误日志
+1. Check if port 4173 is in use
+2. Check Node.js version
+3. Check error logs
 
-### Worker 无法连接
+### Worker Can't Connect
 
-1. 确认 Server 已启动
-2. 检查 `--server` 参数
-3. 检查网络连接
+1. Confirm Server is running
+2. Check `--server` parameter
+3. Check network connection
 
-### AI 不回复
+### AI Not Replying
 
-1. 确认 opencode 已登录: `opencode whoami`
-2. 检查 @mention 格式: `@alice` 不是 `@Alice`
-3. 查看 Worker 日志
+1. Confirm opencode is logged in: `opencode whoami`
+2. Check @mention format: `@alice` not `@Alice`
+3. Check Worker logs
 
-### 流式不工作
+### Streaming Not Working
 
-1. 确认使用 `--format json`
-2. 检查前端 SSE 连接
-3. 查看浏览器控制台
+1. Confirm using `--format json`
+2. Check frontend SSE connection
+3. Check browser console
 
-## 性能优化
+## Performance Optimization
 
-### 减少冷启动
+### Reduce Cold Start
 
-- 使用 `--session` 保持会话
-- 避免频繁重启 Worker
+- Use `--session` to maintain sessions
+- Avoid frequently restarting Worker
 
-### 减少延迟
+### Reduce Latency
 
-- Worker 和 Server 在同一机器
-- 使用本地网络
+- Worker and Server on the same machine
+- Use local network
 
-### 资源限制
+### Resource Limits
 
-- opencode CLI 可能消耗较多内存
-- 建议至少 4GB RAM
+- opencode CLI may consume significant memory
+- Recommended at least 4GB RAM

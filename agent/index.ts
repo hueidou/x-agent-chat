@@ -8,12 +8,12 @@ function usage(): void {
 Usage: raft agent start [options]
 
 Options:
-  --server <url>      Raft 服务器地址 (默认 http://localhost:4173)
-  --handle <handle>   Agent handle (如 @alice)
-  --name <name>       Agent 名称
-  --runtime <type>    运行时 (opencode, claude-code)
+  --server <url>      Raft server address (default http://localhost:4173)
+  --handle <handle>   Agent handle (e.g. @alice)
+  --name <name>       Agent name
+  --runtime <type>    Runtime (opencode, claude-code)
 
-示例:
+Examples:
   raft agent start --server http://localhost:4173 --handle @alice --name Alice --runtime opencode
   raft agent start --server https://my-server.com --handle @bob --name Bob --runtime claude-code
 `)
@@ -40,7 +40,7 @@ async function main(): Promise<void> {
   const config = parseArgs()
 
   if (!config.handle || !config.name) {
-    console.error('❌ --handle 和 --name 是必填参数')
+    console.error('❌ --handle and --name are required')
     usage()
   }
 

@@ -1,23 +1,23 @@
 # X-Agent-Chat
 
-人类 + AI 智能体协作平台，参照 [raft.build](https://raft.build) 架构设计。
+Human + AI agent collaboration platform, inspired by [raft.build](https://raft.build) architecture.
 
-## 特性
+## Features
 
-- **流式输出** — AI 回复实时推送到前端，逐字显示
-- **会话保持** — 使用 opencode `--session` 参数，多轮对话保持上下文
-- **多运行时** — 支持 opencode、claude-code 等多种 AI 运行时
-- **SSE 推送** — 服务端实时推送消息和流式内容到前端
-- **@mention** — 在频道中 @智能体 名字即可触发 AI 回复
+- **Streaming Output** — AI replies are pushed to the frontend in real-time, displayed character by character
+- **Session Persistence** — Uses opencode `--session` parameter to maintain multi-turn conversation context
+- **Multiple Runtimes** — Supports opencode, claude-code, and other AI runtimes
+- **SSE Push** — Server pushes messages and streaming content to the frontend in real-time
+- **@mention** — Mention @agent name in a channel to trigger an AI reply
 
-## 架构
+## Architecture
 
 ```
 ┌─────────────┐     SSE/REST      ┌─────────────────┐
-│  前端 (React)│ ←───────────────→ │  Server (Express)│
-└─────────────┘                    └────────┬────────┘
-                                            │
-                                      轮询 + SSE
+│  Frontend    │ ←───────────────→ │  Server (Express)│
+│  (React)     │                   └────────┬────────┘
+└─────────────┘                             │
+                                      Polling + SSE
                                             │
                                    ┌────────▼────────┐
                                    │  Agent Worker    │
@@ -31,31 +31,31 @@
                                    └─────────────────┘
 ```
 
-## 快速开始
+## Quick Start
 
 ```bash
-# 安装依赖
+# Install dependencies
 npm install
 cd web && npm install && npm run build && cd ..
 
-# 编译
+# Compile
 npx tsc
 
-# 启动服务
+# Start server
 node dist/server/index.js
 
-# 新终端：启动 Agent Worker
+# New terminal: Start Agent Worker
 node dist/agent/index.js --server http://localhost:4173 --handle @alice --name Alice --runtime opencode
 ```
 
-浏览器打开 `http://localhost:4173`，发送 `@alice 你好` 即可。
+Open `http://localhost:4173` in your browser and send `@alice hello` to get started.
 
-## 技术栈
+## Tech Stack
 
-- **后端**: Express + TypeScript
-- **前端**: React + Vite
-- **AI 运行时**: opencode CLI (JSON 模式)
-- **通信**: REST API + Server-Sent Events (SSE)
+- **Backend**: Express + TypeScript
+- **Frontend**: React + Vite
+- **AI Runtime**: opencode CLI (JSON mode)
+- **Communication**: REST API + Server-Sent Events (SSE)
 
 ## License
 

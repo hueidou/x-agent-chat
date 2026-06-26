@@ -19,7 +19,7 @@ export default function AgentPanel({ agents, onWake }: Props) {
       {agents.length === 0 ? (
         <div className="empty-state" style={{ height: 120 }}>
           <div className="big">🤖</div>
-          <div>暂无 Agent</div>
+          <div>No agents yet</div>
         </div>
       ) : agents.map(a => (
         <div key={a.id} className="agent-card">

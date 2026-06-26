@@ -18,7 +18,7 @@ export default function Sidebar({ server, channels, activeChannel, onSelect, onC
         {server?.server.name || 'Raft'}
         <span className="badge">v0.1</span>
       </div>
-      <div className="sidebar-section">频道</div>
+      <div className="sidebar-section">Channels</div>
       <div className="channel-list">
         {channels.map((ch, i) => (
           <div
@@ -32,7 +32,7 @@ export default function Sidebar({ server, channels, activeChannel, onSelect, onC
         ))}
       </div>
       <div className="quick-actions">
-        <button className="quick-btn" onClick={onCreateChannel}>+ 频道</button>
+        <button className="quick-btn" onClick={onCreateChannel}>+ Channel</button>
       </div>
     </div>
   )

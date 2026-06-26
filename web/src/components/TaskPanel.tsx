@@ -13,7 +13,7 @@ export default function TaskPanel({ tasks, agents, onClaim, onDone }: Props) {
       {tasks.length === 0 ? (
         <div className="empty-state" style={{ height: 120 }}>
           <div className="big">📋</div>
-          <div>暂无任务</div>
+          <div>No tasks yet</div>
         </div>
       ) : tasks.map(t => {
         const claimedAgent = t.claimedBy ? agents.find(a => a.id === t.claimedBy) : null
@@ -23,19 +23,19 @@ export default function TaskPanel({ tasks, agents, onClaim, onDone }: Props) {
             <span className={`task-status ${t.status}`}>{t.status}</span>
             {t.description && <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 4 }}>{t.description}</div>}
             <div className="task-meta">
-              {t.assignedNames?.length ? `指派: ${t.assignedNames.join(', ')}` : ''}
-              {claimedAgent ? ` | 认领: ${claimedAgent.name}` : ''}
+              {t.assignedNames?.length ? `Assigned: ${t.assignedNames.join(', ')}` : ''}
+              {claimedAgent ? ` | Claimed: ${claimedAgent.name}` : ''}
             </div>
             {t.status === 'pending' && (
               <button className="task-btn" onClick={() => {
-                const h = prompt('输入 Agent handle (如 @alice):')
+                const h = prompt('Enter Agent handle (e.g. @alice):')
                 if (h) onClaim(t.id, h)
-              }}>认领</button>
+              }}>Claim</button>
             )}
             {t.status === 'claimed' && (
               <button className="task-btn" onClick={() => {
-                if (confirm(`确认完成任务 "${t.title}"?`)) onDone(t.id)
-              }}>✅ 完成</button>
+                if (confirm(`Mark task "${t.title}" as done?`)) onDone(t.id)
+              }}>✅ Done</button>
             )}
           </div>
         )

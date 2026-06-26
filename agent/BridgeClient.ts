@@ -28,14 +28,14 @@ export class BridgeClient {
     const adapter = getRuntimeAdapter(this.runtime as any)
     if (!adapter) {
       const available = listAvailableAdapters()
-      console.log(`❌ 运行时 "${this.runtime}" 不可用。可用: ${available.join(', ') || '无'}`)
+      console.log(`❌ Runtime "${this.runtime}" not available. Available: ${available.join(', ') || 'none'}`)
       process.exit(1)
     }
 
-    console.log(`🤖 ${this.name} (${this.handle}) 已启动`)
-    console.log(`   运行时: ${adapter.type}`)
-    console.log(`   服务器: ${this.serverUrl}`)
-    console.log(`   监听 @mention...`)
+    console.log(`🤖 ${this.name} (${this.handle}) started`)
+    console.log(`   Runtime: ${adapter.type}`)
+    console.log(`   Server: ${this.serverUrl}`)
+    console.log(`   Listening for @mentions...`)
 
     this.polling = true
     await this.pollLoop(adapter)
@@ -58,7 +58,7 @@ export class BridgeClient {
 
   private async checkMessages(adapter: RuntimeAdapter): Promise<void> {
     const chRes = await fetch(`${this.serverUrl}/api/channels`)
-    if (!chRes.ok) { console.error(`   [!] 无法获取频道列表: ${chRes.status}`); return }
+    if (!chRes.ok) { console.error(`   [!] Cannot fetch channel list: ${chRes.status}`); return }
     const channels: any[] = await chRes.json()
 
     for (const ch of channels) {
@@ -93,7 +93,7 @@ export class BridgeClient {
     adapter: RuntimeAdapter
   ): Promise<void> {
     const prompt = this.buildPrompt(channelName, msg)
-    console.log(`   ⏳ ${this.name} 正在思考...`)
+    console.log(`   ⏳ ${this.name} is thinking...`)
 
     try {
       let streamingContent = ''
@@ -109,13 +109,13 @@ export class BridgeClient {
           }
         },
         onSession: (sessionId: string) => {
-          console.log(`   🔗 会话: ${sessionId}`)
+          console.log(`   🔗 Session: ${sessionId}`)
         },
         onDone: (fullText: string) => {
-          console.log(`   ✅ ${this.name} 获得 AI 回复 (${fullText.length} 字符)`)
+          console.log(`   ✅ ${this.name} got AI reply (${fullText.length} chars)`)
         },
         onError: (message: string) => {
-          console.error(`   ⚠️ OpenCode 错误: ${message}`)
+          console.error(`   ⚠️ OpenCode error: ${message}`)
         },
       }
 
@@ -129,14 +129,14 @@ export class BridgeClient {
           body: JSON.stringify({ content: reply.trim(), senderHandle: this.handle }),
         })
         if (res.ok) {
-          console.log(`   ✅ ${this.name} 已回复: ${reply.trim().slice(0, 80)}...`)
+          console.log(`   ✅ ${this.name} replied: ${reply.trim().slice(0, 80)}...`)
         } else {
           const txt = await res.text().catch(() => '')
-          console.error(`   ❌ 回复发送失败: ${res.status} ${txt}`)
+          console.error(`   ❌ Reply send failed: ${res.status} ${txt}`)
         }
       }
     } catch (err: any) {
-      console.error(`   ❌ ${this.name} 处理失败: ${err.message}`)
+      console.error(`   ❌ ${this.name} failed: ${err.message}`)
       console.error(`   ${err.stack?.split('\n').slice(0, 3).join('\n')}`)
     }
   }

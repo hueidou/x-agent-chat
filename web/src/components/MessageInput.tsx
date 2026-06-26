@@ -73,12 +73,12 @@ export default function MessageInput({ onSend, agents, channelName = 'all' }: Pr
       <div className="input-wrap">
         <input
           ref={inputRef}
-          placeholder={`发送消息到 #${channelName}... 输入 @ 提及 Agent`}
+          placeholder={`Send message to #${channelName}... Type @ to mention an agent`}
           value={text}
           onChange={e => setText(e.target.value)}
           onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
         />
-        <button className="btn-send" onClick={send} disabled={!text.trim()}>发送</button>
+        <button className="btn-send" onClick={send} disabled={!text.trim()}>Send</button>
       </div>
     </div>
   )

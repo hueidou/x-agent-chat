@@ -25,7 +25,7 @@ export default function ChatArea({ channel, messages, streaming }: Props) {
       <div className="main">
         <div className="empty-state">
           <div className="big">💬</div>
-          <div>选择一个频道开始对话</div>
+          <div>Select a channel to start</div>
         </div>
       </div>
     )
@@ -42,13 +42,13 @@ export default function ChatArea({ channel, messages, streaming }: Props) {
     <div className="main">
       <div className="chat-header">
         <span># {channel.name}</span>
-        <span className="topic">{messages.length} 条消息</span>
+        <span className="topic">{messages.length} messages</span>
       </div>
       <div className="messages">
         {messages.length === 0 && (
           <div className="empty-state" style={{ height: 200 }}>
             <div className="big">📝</div>
-            <div>发送第一条消息</div>
+            <div>Send the first message</div>
           </div>
         )}
         {messages.map(m => (
@@ -85,7 +85,7 @@ export default function ChatArea({ channel, messages, streaming }: Props) {
                 <span className="msg-name" style={{ color: 'var(--purple)' }}>
                   {streaming.agentName}
                 </span>
-                <span className="streaming-indicator">正在回复...</span>
+                <span className="streaming-indicator">Replying...</span>
               </div>
               <div className="msg-text">{streaming.content}<span className="cursor-blink">|</span></div>
             </div>

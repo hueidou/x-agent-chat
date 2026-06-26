@@ -24,13 +24,13 @@ function get(path) {
 
 async function main() {
   // 1. Reset state
-  console.log('=== 创建 Agent ===')
+  console.log('=== Create Agent ===')
   await post('/api/agents', { name: 'Alice', description: 'Developer', runtime: 'opencode' })
   const agents = await get('/api/agents')
   console.log(`  Agent: ${agents.map(a => `${a.name}(${a.handle})`).join(', ')}`)
 
   // 2. Start Agent Worker as subprocess
-  console.log('\n=== 启动 Agent Worker ===')
+  console.log('\n=== Start Agent Worker ===')
   const workerPath = 'C:\\Users\\hueid\\Desktop\\workspace\\dosomething\\raft-core\\dist\\agent\\index.js'
   const worker = spawn('node', [workerPath, '--server', BASE, '--handle', '@alice', '--name', 'Alice', '--runtime', 'opencode'], {
     cwd: 'C:\\Users\\hueid\\Desktop\\workspace\\dosomething\\raft-core',
@@ -44,15 +44,15 @@ async function main() {
   await new Promise(r => setTimeout(r, 3000))
 
   // 3. Send message mentioning @alice
-  console.log('\n=== 发送 @alice 消息 ===')
+  console.log('\n=== Send @alice message ===')
   const msg = await post('/api/channels/all/messages', {
     content: '@alice Reply with just the number: what is 7 * 8?',
     senderHandle: 'admin'
   })
-  console.log(`  已发送: ${msg.body.content}`)
+  console.log(`  Sent: ${msg.body.content}`)
 
   // 4. Wait for worker to process (opencode cold start)
-  console.log('\n=== 等待 Agent 回复 (opencode 冷启动约 30-60s) ===')
+  console.log('\n=== Waiting for Agent reply (opencode cold start ~30-60s) ===')
   const startTime = Date.now()
   let replyFound = false
 
@@ -61,7 +61,7 @@ async function main() {
     const msgs = await get('/api/channels/all/messages')
     const agentMsgs = msgs.filter(m => m.sender.type === 'agent')
     if (agentMsgs.length > 0) {
-      console.log(`\n✅ Agent 已回复 (${Math.round((Date.now() - startTime) / 1000)}s)!`)
+      console.log(`\n✅ Agent replied (${Math.round((Date.now() - startTime) / 1000)}s)!`)
       for (const m of agentMsgs) {
         console.log(`   [${m.sender.name}] ${m.content}`)
       }
@@ -75,11 +75,11 @@ async function main() {
   worker.kill()
 
   if (!replyFound) {
-    console.log('\n❌ 超时: Agent 未在 120s 内回复')
+    console.log('\n❌ Timeout: Agent did not reply within 120s')
     process.exit(1)
   }
 
-  console.log('\n=== ✅ Worker 完整流程通过 ===')
+  console.log('\n=== ✅ Worker full flow passed ===')
   process.exit(0)
 }
 
