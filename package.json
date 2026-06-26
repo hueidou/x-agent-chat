@@ -1,0 +1,37 @@
+{
+  "name": "x-agent-chat",
+  "version": "0.1.0",
+  "description": "X-Agent-Chat — human-AI agent collaboration platform with streaming",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "build:web": "cd web && npm run build",
+    "build:all": "npm run build && npm run build:web",
+    "dev": "tsc --watch",
+    "start": "node server/index.ts",
+    "dev:web": "cd web && npm run dev",
+    "test": "node --loader ts-node/esm tests/core.test.ts",
+    "example": "node --loader ts-node/esm examples/basic-usage.ts"
+  },
+  "bin": {
+    "raft": "./dist/src/cli/index.js"
+  },
+  "dependencies": {
+    "commander": "^14.0.3",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "uuid": "^9.0.0",
+    "ws": "^8.16.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^20.0.0",
+    "@types/uuid": "^9.0.0",
+    "@types/ws": "^8.5.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.3.0"
+  }
+}
